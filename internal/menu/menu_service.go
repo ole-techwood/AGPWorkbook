@@ -7,8 +7,8 @@ import (
 
 type MenuService struct{}
 
-func NewMenuService() *MenuService {
-	return &MenuService{}
+func NewMenuService() MenuService {
+	return MenuService{}
 }
 
 func (s *MenuService) GetMenu() {

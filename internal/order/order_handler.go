@@ -10,17 +10,25 @@ import (
 )
 
 type OrderHandler struct {
-	orderService *OrderService
-	helpService  *help.HelpService
+	orderService OrderService
+	helpService  help.HelpService
 }
 
+// Fields
+var (
+	errPizzaNameNotSpecified = errors.New("pizza name not specified")
+	errQuantityTooLow        = errors.New("quantity must be at least 1")
+)
+
+// Constructor
 func NewOrderHandler() *OrderHandler {
 	return &OrderHandler{
-		orderService: NewOrderService(),
+		orderService: OrderService{},
 		helpService:  help.NewHelpService(),
 	}
 }
 
+// Methods
 func (h *OrderHandler) AddPizzaToOrder(args []string) {
 	pizzaName, quantity, err := h.parseAddArgs(args)
 
@@ -39,12 +47,16 @@ func (h *OrderHandler) AddPizzaToOrder(args []string) {
 	}
 }
 
-func (h *OrderHandler) parseAddArgs(args []string) (string, int, error) {
-	var (
-		errPizzaNameNotSpecified = errors.New("pizza name not specified")
-		errQuantityTooLow        = errors.New("quantity must be at least 1")
-	)
+func (h *OrderHandler) Checkout() {
+	err := h.orderService.Checkout()
+	if err != nil {
+		fmt.Println(err.Error())
+		fmt.Println("")
+		h.helpService.GetHelp()
+	}
+}
 
+func (h *OrderHandler) parseAddArgs(args []string) (string, int, error) {
 	if len(args) == 0 {
 		return "", 0, errPizzaNameNotSpecified
 	}

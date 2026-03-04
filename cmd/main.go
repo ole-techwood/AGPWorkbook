@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/ole-techwood/PizzaCLI/internal/help"
 	"github.com/ole-techwood/PizzaCLI/internal/menu"
@@ -11,31 +13,50 @@ import (
 
 func main() {
 	helpHandler := help.NewHelpHandler()
+	menuHandler := menu.NewMenuHandler()
+	orderHandler := order.NewOrderHandler()
 
-	if len(os.Args) < 2 {
-		fmt.Println("Command not specified")
-		fmt.Println("")
-		helpHandler.GetHelp()
+	fmt.Println("Welcome to PizzaCLI! Type 'help' for available commands.")
+	fmt.Println()
 
-		return
-	}
+	scanner := bufio.NewScanner(os.Stdin)
 
-	command := os.Args[1]
+	for {
+		fmt.Print("pizza> ")
 
-	switch command {
-	case "menu":
-		menuHandler := menu.NewMenuHandler()
+		if !scanner.Scan() {
+			break
+		}
 
-		menuHandler.GetMenu()
-	case "add":
-		orderHandler := order.NewOrderHandler()
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue
+		}
 
-		orderHandler.AddPizzaToOrder(os.Args[2:])
-	case "help":
-		helpHandler.GetHelp()
-	default:
-		fmt.Printf("Unknown command: %s\n", command)
-		fmt.Println("")
-		helpHandler.GetHelp()
+		command, rest, _ := strings.Cut(line, " ")
+		var args []string
+		if rest != "" {
+			args = strings.Fields(rest)
+		}
+
+		switch command {
+		case "menu":
+			menuHandler.GetMenu()
+		case "add":
+			orderHandler.AddPizzaToOrder(args)
+		case "checkout":
+			orderHandler.Checkout()
+		case "help":
+			helpHandler.GetHelp()
+		case "exit", "quit":
+			fmt.Println("Bye!")
+			return
+		default:
+			fmt.Printf("Unknown command: %s\n", command)
+			fmt.Println()
+			helpHandler.GetHelp()
+		}
+
+		fmt.Println()
 	}
 }

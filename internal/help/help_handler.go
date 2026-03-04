@@ -1,7 +1,7 @@
 package help
 
 type HelpHandler struct {
-	helpService *HelpService
+	helpService HelpService
 }
 
 func NewHelpHandler() *HelpHandler {

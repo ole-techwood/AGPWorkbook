@@ -1,7 +1,7 @@
 package menu
 
 type MenuHandler struct {
-	menuService *MenuService
+	menuService MenuService
 }
 
 func NewMenuHandler() *MenuHandler {
