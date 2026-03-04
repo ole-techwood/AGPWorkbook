@@ -22,12 +22,12 @@ func (s *MenuService) GetMenu() {
 	fmt.Print(sb.String())
 }
 
-func (s *MenuService) GetPizzaByName(name string) (Pizza, error) {
-	for _, pizza := range Menu {
-		if strings.EqualFold(pizza.Name, name) {
-			return pizza, nil
+func (s *MenuService) GetPizzaByName(name string) (*Pizza, error) {
+	for i := range Menu {
+		if strings.EqualFold(Menu[i].Name, name) {
+			return &Menu[i], nil
 		}
 	}
 
-	return Pizza{}, fmt.Errorf("pizza not found: %s", name)
+	return nil, fmt.Errorf("pizza not found: %s", name)
 }

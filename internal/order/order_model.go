@@ -3,7 +3,7 @@ package order
 import "github.com/ole-techwood/PizzaCLI/internal/menu"
 
 type OrderItem struct {
-	Pizza    menu.Pizza
+	Pizza    *menu.Pizza
 	Quantity int
 }
 
