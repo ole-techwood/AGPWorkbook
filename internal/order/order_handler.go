@@ -9,22 +9,21 @@ import (
 	"github.com/ole-techwood/PizzaCLI/internal/help"
 )
 
-type OrderHandler struct {
-	orderService OrderService
-	helpService  help.HelpService
-}
-
 // Fields
-var (
-	errPizzaNameNotSpecified = errors.New("pizza name not specified")
-	errQuantityTooLow        = errors.New("quantity must be at least 1")
-)
+type OrderHandler struct {
+	orderService             *OrderService
+	helpService              help.HelpService
+	errPizzaNameNotSpecified error
+	errQuantityTooLow        error
+}
 
 // Constructor
 func NewOrderHandler() *OrderHandler {
 	return &OrderHandler{
-		orderService: OrderService{},
-		helpService:  help.NewHelpService(),
+		orderService:             NewOrderService(),
+		helpService:              help.NewHelpService(),
+		errPizzaNameNotSpecified: errors.New("pizza name not specified"),
+		errQuantityTooLow:        errors.New("quantity must be at least 1"),
 	}
 }
 
@@ -58,7 +57,7 @@ func (h *OrderHandler) Checkout() {
 
 func (h *OrderHandler) parseAddArgs(args []string) (string, int, error) {
 	if len(args) == 0 {
-		return "", 0, errPizzaNameNotSpecified
+		return "", 0, h.errPizzaNameNotSpecified
 	}
 
 	// By default quantity is always 1
@@ -72,11 +71,11 @@ func (h *OrderHandler) parseAddArgs(args []string) (string, int, error) {
 
 	name := strings.Join(args, " ")
 	if name == "" {
-		return "", 0, errPizzaNameNotSpecified
+		return "", 0, h.errPizzaNameNotSpecified
 	}
 
 	if quantity < 1 {
-		return "", 0, errQuantityTooLow
+		return "", 0, h.errQuantityTooLow
 	}
 
 	return name, quantity, nil

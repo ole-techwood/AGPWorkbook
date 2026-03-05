@@ -1,5 +1,7 @@
 package menu
 
+import "time"
+
 type Pizza struct {
 	ID    int
 	Name  string
@@ -14,4 +16,11 @@ var Menu = []Pizza{
 	{ID: 5, Name: "BBQ Chicken", Price: 10.99},
 	{ID: 6, Name: "Quattro Formaggi", Price: 11.99},
 	{ID: 7, Name: "Spicy Inferno", Price: 11.49},
+}
+
+const cacheTTL = 30 * time.Second
+
+type cacheEntry struct {
+	pizza    *Pizza
+	cachedAt time.Time
 }
