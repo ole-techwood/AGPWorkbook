@@ -1,4 +1,4 @@
-package analyzer
+package analysis
 
 import (
 	"fmt"
@@ -7,19 +7,19 @@ import (
 	"github.com/ole-techwood/AGPWorkbook/internal/file"
 )
 
-type AnalyzerHandler struct {
-	fileService     *file.FileService
-	analyzerService *AnalyzerService
+type AnalysisHandler struct {
+	fileService     file.FileService
+	analysisService AnalysisService
 }
 
-func NewAnalyzerHandler() *AnalyzerHandler {
-	return &AnalyzerHandler{
+func NewAnalysisHandler() AnalysisHandler {
+	return AnalysisHandler{
 		fileService:     file.NewFileService(),
-		analyzerService: NewAnalyzerService(),
+		analysisService: NewAnalysisService(),
 	}
 }
 
-func (ah *AnalyzerHandler) RunAudit() {
+func (ah *AnalysisHandler) Audit() {
 	filePath, err := ah.fileService.GetTargetFilePath()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
@@ -38,13 +38,7 @@ func (ah *AnalyzerHandler) RunAudit() {
 		os.Exit(1)
 	}
 
-	err = ah.analyzerService.ValidateURLs(urls)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(1)
-	}
+	auditResults := ah.analysisService.AnalyzeURLs(urls)
 
-	auditResults := ah.analyzerService.AnalyzeURLs(urls)
-
-	ah.analyzerService.PrintResults(auditResults)
+	ah.analysisService.PrintResults(auditResults)
 }

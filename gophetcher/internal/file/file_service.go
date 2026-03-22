@@ -10,8 +10,8 @@ import (
 
 type FileService struct{}
 
-func NewFileService() *FileService {
-	return &FileService{}
+func NewFileService() FileService {
+	return FileService{}
 }
 
 func (fs *FileService) GetTargetFilePath() (*string, error) {
@@ -51,7 +51,7 @@ func (fs *FileService) ReadURLsFromFile(filePath string) ([]string, error) {
 	}
 	defer file.Close()
 
-	var urls []string
+	urls := make([]string, 0, 4)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		urls = append(urls, scanner.Text())
