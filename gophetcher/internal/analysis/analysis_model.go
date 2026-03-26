@@ -1,9 +1,23 @@
 package analysis
 
-type AuditResult struct {
-	URL           string
+type AuditResult any
+
+type BaseAuditResult struct {
+	URL         string
+	Status      string // HTTP status code as string or error marker.
+	ErrorReason string
+}
+
+type WebAuditResult struct {
+	BaseAuditResult
+
 	ContentLength int64
 	Server        string
-	Status        string // "200", "ERROR", "UNREACHABLE", "TIMEOUT", etc.
-	ErrorReason   string // error message if Status is not a valid HTTP code
+}
+
+type FileAuditResult struct {
+	BaseAuditResult
+
+	Size        int64
+	Permissions string
 }

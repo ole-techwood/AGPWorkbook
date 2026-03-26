@@ -2,3 +2,4 @@ https://google.com
 https://github.com
 invalid-url-here
 http://localhost:8080
+file:///Users/olexandrpylypyshyn/Documents/Work/Apriorit/CV/Pylypyshyn_Olexandr_FullStack_CV.html
