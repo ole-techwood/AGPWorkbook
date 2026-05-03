@@ -2,7 +2,6 @@ package file
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,17 +11,6 @@ type FileService struct{}
 
 func NewFileService() FileService {
 	return FileService{}
-}
-
-func (fs *FileService) GetTargetFilePath() (*string, error) {
-	filePath := flag.String("file", "", "path to the file with target URLs")
-	flag.Parse()
-
-	if *filePath == "" {
-		return nil, fmt.Errorf("error: -file flag is required")
-	}
-
-	return filePath, nil
 }
 
 func (fs *FileService) ValidateFile(filePath string) error {

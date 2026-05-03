@@ -1,59 +1,73 @@
 package analysis
 
 import (
-	"strings"
+	"strconv"
+
+	"github.com/ole-techwood/AGPWorkbook/internal/report"
 )
 
 type AnalysisService interface {
 	AnalyzeURLs(urls []string) []AuditResult
-	PrintResults(results []AuditResult)
 }
 
-const (
-	tableRowFormat = "%-24s %-10s %-10s %s\n"
-)
-
-func sanitizeErrorMessage(message string) string {
-	message = strings.ReplaceAll(message, "\n", " ")
-	message = strings.ReplaceAll(message, "\r", " ")
-
-	return strings.Join(strings.Fields(message), " ")
-}
-
-// AnalysisServiceRegistry maps URI schemes to their AnalysisService.
-type AnalysisServiceRegistry struct {
-	services map[string]AnalysisService
-}
-
-func NewAnalysisServiceRegistry() *AnalysisServiceRegistry {
-	return &AnalysisServiceRegistry{
-		services: map[string]AnalysisService{
-			"http":  NewWebAnalysisService(),
-			"https": NewWebAnalysisService(),
-			"file":  NewFileAnalysisService(),
-		},
+func ToReportRows(results []AuditResult) []report.ReportRow {
+	rows := make([]report.ReportRow, 0, len(results))
+	for _, result := range results {
+		rows = append(rows, toReportRow(result))
 	}
+
+	return rows
 }
 
-// Resolve returns the AnalysisService for the scheme of rawURL, or nil if unknown.
-func (r *AnalysisServiceRegistry) Resolve(rawURL string) (AnalysisService, bool) {
-	scheme, _, found := strings.Cut(rawURL, "://")
-	if !found {
-		return nil, false
-	}
-	svc, ok := r.services[strings.ToLower(scheme)]
-	return svc, ok
-}
-
-// GroupByService partitions urls into per-service slices, preserving order.
-func (r *AnalysisServiceRegistry) GroupByService(urls []string) map[AnalysisService][]string {
-	groups := make(map[AnalysisService][]string, len(urls))
-	for _, u := range urls {
-		svc, ok := r.Resolve(u)
-		if !ok {
-			continue
+func toReportRow(result AuditResult) report.ReportRow {
+	switch typed := result.(type) {
+	case WebAuditResult:
+		return webReportRow(typed)
+	case *WebAuditResult:
+		if typed == nil {
+			return report.ReportRow{Resource: "-", Status: "ERROR", Size: "-", Info: "unexpected nil web result"}
 		}
-		groups[svc] = append(groups[svc], u)
+		return webReportRow(*typed)
+	case FileAuditResult:
+		return fileReportRow(typed)
+	case *FileAuditResult:
+		if typed == nil {
+			return report.ReportRow{Resource: "-", Status: "ERROR", Size: "-", Info: "unexpected nil file result"}
+		}
+		return fileReportRow(*typed)
+	default:
+		return report.ReportRow{Resource: "-", Status: "ERROR", Size: "-", Info: "unexpected result type"}
 	}
-	return groups
+}
+
+func webReportRow(result WebAuditResult) report.ReportRow {
+	size := "-"
+	if _, err := strconv.Atoi(result.Status); err == nil {
+		if result.ContentLength >= 0 {
+			size = strconv.FormatInt(result.ContentLength, 10)
+		}
+	} else {
+		size = report.SanitizeErrorMessage(result.ErrorReason)
+	}
+
+	return report.ReportRow{
+		Resource: result.URL,
+		Status:   result.Status,
+		Size:     size,
+		Info:     result.Server,
+	}
+}
+
+func fileReportRow(result FileAuditResult) report.ReportRow {
+	size := report.SanitizeErrorMessage(result.ErrorReason)
+	if result.Status == "OK" {
+		size = strconv.FormatInt(result.Size, 10)
+	}
+
+	return report.ReportRow{
+		Resource: result.URL,
+		Status:   result.Status,
+		Size:     size,
+		Info:     result.Permissions,
+	}
 }

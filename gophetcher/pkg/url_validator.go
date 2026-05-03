@@ -62,7 +62,12 @@ func (wuv *WebURLValidator) isURLMalformed(candidate string) (*url.URL, error) {
 }
 
 func (wuv *WebURLValidator) isURLSchemeValid(candidate *url.URL) error {
-	if candidate.Scheme != "http" && candidate.Scheme != "https" {
+	supportedSchemes := map[string]bool{
+		"http":  true,
+		"https": true,
+	}
+
+	if !supportedSchemes[candidate.Scheme] {
 		return fmt.Errorf("error: unsupported URL scheme: %s", candidate.Scheme)
 	}
 	return nil

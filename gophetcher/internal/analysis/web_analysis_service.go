@@ -1,7 +1,6 @@
 package analysis
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -72,51 +71,4 @@ func (as *WebAnalysisService) AnalyzeURLs(urls []string) []AuditResult {
 	}
 
 	return results
-}
-
-func toWebAuditResult(result AuditResult) (WebAuditResult, bool) {
-	if webResult, ok := result.(WebAuditResult); ok {
-		return webResult, true
-	}
-	if ptr, ok := result.(*WebAuditResult); ok && ptr != nil {
-		return *ptr, true
-	}
-	return WebAuditResult{}, false
-}
-
-func formatSizeColumn(result WebAuditResult) string {
-	if _, err := strconv.Atoi(result.Status); err == nil {
-		if result.ContentLength >= 0 {
-			return strconv.FormatInt(result.ContentLength, 10)
-		}
-
-		return "-"
-	}
-
-	return sanitizeErrorMessage(result.ErrorReason)
-}
-
-func (as *WebAnalysisService) PrintResults(results []AuditResult) {
-	if len(results) == 0 {
-		fmt.Println("No audit results to display.")
-		return
-	}
-
-	fmt.Println(strings.Repeat("-", 60))
-	fmt.Printf(tableRowFormat, "RESOURCE", "STATUS", "SIZE", "SERVER")
-	fmt.Println(strings.Repeat("-", 60))
-
-	for _, result := range results {
-		webResult, ok := toWebAuditResult(result)
-		if !ok {
-			fmt.Printf(tableRowFormat, "-", "ERROR", "-", "unexpected result type")
-			continue
-		}
-
-		size := formatSizeColumn(webResult)
-		fmt.Printf(tableRowFormat, webResult.URL, webResult.Status, size, webResult.Server)
-	}
-
-	fmt.Println(strings.Repeat("-", 60))
-	fmt.Printf("Done. %d resources processed.\n", len(results))
 }
