@@ -51,9 +51,6 @@ func (rh TextReportHandler) Report(rows []ReportRow) {
 	for _, row := range rows {
 		fmt.Printf(TableRowFormat, row.Resource, row.Status, row.Size, row.Info)
 	}
-
-	fmt.Println(strings.Repeat("-", 72))
-	fmt.Printf("Done. %d resources processed.\n", len(rows))
 }
 
 func (rh JSONReportHandler) Report(rows []ReportRow) {

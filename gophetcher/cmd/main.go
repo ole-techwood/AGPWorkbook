@@ -1,9 +1,15 @@
 package main
 
-import "github.com/ole-techwood/AGPWorkbook/internal/analysis"
+import (
+	"os"
+
+	"github.com/ole-techwood/AGPWorkbook/internal/analysis"
+)
 
 func main() {
 	analyzerHandler := analysis.NewAnalysisHandler()
 
-	analyzerHandler.Audit()
+	if err := analyzerHandler.Audit(); err != nil {
+		os.Exit(1)
+	}
 }

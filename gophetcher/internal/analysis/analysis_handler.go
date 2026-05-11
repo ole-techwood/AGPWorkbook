@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/ole-techwood/AGPWorkbook/internal/cli"
 	"github.com/ole-techwood/AGPWorkbook/internal/file"
@@ -30,24 +31,34 @@ func NewAnalysisHandler() AnalysisHandler {
 	}
 }
 
-func (ah *AnalysisHandler) Audit() {
+func (ah *AnalysisHandler) Audit() error {
+	startTime := time.Now()
+	var totalResources int
+
+	// Defer block to print Final Execution Summary
+	defer func() {
+		ah.printSummary(startTime, totalResources)
+	}()
+
 	options, err := ah.cliService.GetCLIOptions()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(1)
+		return err
 	}
 
 	err = ah.fileService.ValidateFile(options.FilePath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(1)
+		return err
 	}
 
 	urls, err := ah.fileService.ReadURLsFromFile(options.FilePath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(1)
+		return err
 	}
+
+	totalResources = len(urls)
 
 	allResults := make([]AuditResult, 0, len(urls))
 	groups := ah.groupUrlsByService(urls)
@@ -58,6 +69,8 @@ func (ah *AnalysisHandler) Audit() {
 
 	reportHandler := report.NewReportHandler(options.Format)
 	reportHandler.Report(ToReportRows(allResults))
+
+	return nil
 }
 
 // getURLBasedService returns the AnalysisService for the scheme of rawURL, or nil if unknown.
@@ -85,4 +98,15 @@ func (ah *AnalysisHandler) groupUrlsByService(urls []string) map[AnalysisService
 	}
 
 	return groups
+}
+
+// printSummary prints the final execution summary with total resources and elapsed time.
+func (ah *AnalysisHandler) printSummary(startTime time.Time, totalResources int) {
+	elapsed := time.Since(startTime)
+
+	fmt.Printf("------------------------------------------------------------\n")
+	fmt.Printf("[FINAL SUMMARY]\n")
+	fmt.Printf("Total Resources: %d\n", totalResources)
+	fmt.Printf("Execution Time: %dms\n", elapsed.Milliseconds())
+	fmt.Printf("------------------------------------------------------------\n")
 }

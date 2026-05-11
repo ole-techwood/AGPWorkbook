@@ -59,6 +59,8 @@ func (as *WebAnalysisService) AnalyzeURLs(urls []string) []AuditResult {
 			continue
 		}
 
+		defer resp.Body.Close()
+
 		results = append(results, WebAuditResult{
 			BaseAuditResult: BaseAuditResult{
 				URL:    candidate,
@@ -67,7 +69,6 @@ func (as *WebAnalysisService) AnalyzeURLs(urls []string) []AuditResult {
 			ContentLength: resp.ContentLength,
 			Server:        resp.Header.Get("Server"),
 		})
-		resp.Body.Close()
 	}
 
 	return results
