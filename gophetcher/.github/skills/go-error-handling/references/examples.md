@@ -159,3 +159,126 @@ func (cs *CLIService) GetCLIOptions() (*CLIOptions, error) {
 - Errors are checked immediately after operations
 - Error context is wrapped with descriptive messages matching gophetcher's convention (`error: ...`)
 - Early return prevents downstream operations on invalid state
+
+## Panic and Recover
+
+### 1. Basic Panic Usage (Project Context)
+
+In gophetcher, panic should remain rare. This example shows a strict constructor guard that panics only when a required dependency is unexpectedly missing due to a programming error.
+
+```go
+func NewAnalysisHandler() AnalysisHandler {
+	webService := NewWebAnalysisService()
+	if webService == nil {
+		panic("error: failed to initialize web analysis service")
+	}
+
+	return AnalysisHandler{
+		cliService:  cli.NewCLIService(),
+		fileService: file.NewFileService(),
+		services: map[string]AnalysisService{
+			"http":  webService,
+			"https": webService,
+			"file":  NewFileAnalysisService(),
+		},
+	}
+}
+```
+
+**Key points:**
+
+- This panic protects against an invalid internal state, not user input errors.
+- It aligns with the rule to reserve panic for unrecoverable defects.
+
+### 2. Basic Recover Usage in CLI Entry Point
+
+This pattern wraps the audit flow in `cmd/main.go` so unexpected panics are converted into visible CLI failures.
+
+```go
+func main() {
+	defer func() {
+		if recovered := recover(); recovered != nil {
+			fmt.Fprintf(os.Stderr, "error: panic recovered in main: %v\n", recovered)
+			os.Exit(1)
+		}
+	}()
+
+	analyzerHandler := analysis.NewAnalysisHandler()
+	if err := analyzerHandler.Audit(); err != nil {
+		os.Exit(1)
+	}
+}
+```
+
+**Key points:**
+
+- Recover is used inside a deferred function, which is required by Go.
+- The panic value is logged with the project-style `error: ...` prefix.
+
+### 3. Handling Panics for Graceful CLI Exit
+
+This example captures panic, logs context, and exits with a non-zero status after attempting to preserve final diagnostics.
+
+```go
+func (ah *AnalysisHandler) AuditWithRecovery() (err error) {
+	defer func() {
+		if recovered := recover(); recovered != nil {
+			fmt.Fprintf(os.Stderr, "error: audit aborted by panic: %v\n", recovered)
+			err = fmt.Errorf("error: audit failed due to unrecoverable internal error")
+		}
+	}()
+
+	return ah.Audit()
+}
+```
+
+**Key points:**
+
+- A panic is transformed into an error so callers keep a consistent control flow.
+- This keeps the CLI behavior predictable while still surfacing a severe internal issue.
+
+### 4. Real-World Application: Panic Isolation in Per-URL Processing
+
+This example isolates a panic to a single target in `WebAnalysisService`, allowing the audit to continue with the remaining URLs.
+
+```go
+func (as *WebAnalysisService) analyzeSingleURL(candidate string) (result WebAuditResult) {
+	defer func() {
+		if recovered := recover(); recovered != nil {
+			result = WebAuditResult{
+				BaseAuditResult: BaseAuditResult{
+					URL:         candidate,
+					Status:      "ERROR",
+					ErrorReason: fmt.Sprintf("error: panic recovered during web analysis: %v", recovered),
+				},
+			}
+		}
+	}()
+
+	resp, err := as.client.Get(candidate)
+	if err != nil {
+		return WebAuditResult{
+			BaseAuditResult: BaseAuditResult{
+				URL:         candidate,
+				Status:      "UNREACHABLE",
+				ErrorReason: err.Error(),
+			},
+		}
+	}
+	defer resp.Body.Close()
+
+	return WebAuditResult{
+		BaseAuditResult: BaseAuditResult{
+			URL:    candidate,
+			Status: strconv.Itoa(resp.StatusCode),
+		},
+		ContentLength: resp.ContentLength,
+		Server:        resp.Header.Get("Server"),
+	}
+}
+```
+
+**Key points:**
+
+- Recovery is scoped to one URL analysis, so one bad case does not crash the full run.
+- The recovered panic is mapped to a normal audit result row, preserving report continuity.
