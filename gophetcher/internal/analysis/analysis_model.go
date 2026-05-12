@@ -14,6 +14,7 @@ type BaseAuditResult struct {
 	URL         string
 	Status      string // HTTP status code as string or error marker.
 	ErrorReason string
+	RequestID   string // Audit run request ID from context.
 }
 
 type WebAuditResult struct {
@@ -45,6 +46,7 @@ func (r WebAuditResult) ToReportRow() report.ReportRow {
 	}
 
 	return report.ReportRow{
+		ID:       r.RequestID,
 		Resource: r.URL,
 		Status:   r.Status,
 		Size:     size,
@@ -59,6 +61,7 @@ func (r FileAuditResult) ToReportRow() report.ReportRow {
 	}
 
 	return report.ReportRow{
+		ID:       r.RequestID,
 		Resource: r.URL,
 		Status:   r.Status,
 		Size:     size,
@@ -73,6 +76,7 @@ func (r CriticalAuditResult) ToReportRow() report.ReportRow {
 	}
 
 	return report.ReportRow{
+		ID:       r.RequestID,
 		Resource: r.URL,
 		Status:   "CRITICAL",
 		Size:     "-",

@@ -1,6 +1,7 @@
 package analysis
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"os"
@@ -22,19 +23,20 @@ func NewFileAnalysisService() AnalysisService {
 	}
 }
 
-func (as *FileAnalysisService) AnalyzeURLs(urls []string) []AuditResult {
+func (as *FileAnalysisService) AnalyzeURLs(ctx context.Context, urls []string) []AuditResult {
 	results := make([]AuditResult, 0, len(urls))
 
 	for _, rawURL := range urls {
 		candidate := strings.TrimSpace(rawURL)
 
-		result := RecoverPanic(candidate, func() AuditResult {
+		result := RecoverPanic(ctx, candidate, func() AuditResult {
 			if _, err := as.fileURLValidator.Validate(candidate); err != nil {
 				return FileAuditResult{
 					BaseAuditResult: BaseAuditResult{
 						URL:         candidate,
 						Status:      "ERROR",
 						ErrorReason: err.Error(),
+						RequestID:   GetAuditRunID(ctx),
 					},
 				}
 			}
@@ -47,6 +49,7 @@ func (as *FileAnalysisService) AnalyzeURLs(urls []string) []AuditResult {
 						URL:         candidate,
 						Status:      "ERROR",
 						ErrorReason: fmt.Sprintf("error: invalid file path escaping: %v", err),
+						RequestID:   GetAuditRunID(ctx),
 					},
 				}
 			}
@@ -67,14 +70,16 @@ func (as *FileAnalysisService) AnalyzeURLs(urls []string) []AuditResult {
 						URL:         candidate,
 						Status:      status,
 						ErrorReason: statErr.Error(),
+						RequestID:   GetAuditRunID(ctx),
 					},
 				}
 			}
 
 			return FileAuditResult{
 				BaseAuditResult: BaseAuditResult{
-					URL:    candidate,
-					Status: "OK",
+					URL:       candidate,
+					Status:    "OK",
+					RequestID: GetAuditRunID(ctx),
 				},
 				Size:        info.Size(),
 				Permissions: info.Mode().Perm().String(),

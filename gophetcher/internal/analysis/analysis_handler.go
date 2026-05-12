@@ -1,6 +1,7 @@
 package analysis
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -46,6 +47,10 @@ func (ah *AnalysisHandler) Audit() error {
 		return err
 	}
 
+	// Create timeout context from CLI options
+	ctx, cancel := context.WithTimeout(context.Background(), options.Timeout)
+	defer cancel()
+
 	err = ah.fileService.ValidateFile(options.FilePath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
@@ -60,10 +65,13 @@ func (ah *AnalysisHandler) Audit() error {
 
 	totalResources = len(urls)
 
+	// Attach a unique request ID to the context for this audit run.
+	ctx = SetAuditRunID(ctx, fmt.Sprintf("audit-%d", time.Now().UnixNano()))
+
 	allResults := make([]AuditResult, 0, len(urls))
 	groups := ah.groupUrlsByService(urls)
 	for service, serviceURLs := range groups {
-		results := service.AnalyzeURLs(serviceURLs)
+		results := service.AnalyzeURLs(ctx, serviceURLs)
 		allResults = append(allResults, results...)
 	}
 

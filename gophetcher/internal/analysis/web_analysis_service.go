@@ -1,6 +1,7 @@
 package analysis
 
 import (
+	"context"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -26,13 +27,13 @@ func NewWebAnalysisService() AnalysisService {
 	}
 }
 
-func (as *WebAnalysisService) AnalyzeURLs(urls []string) []AuditResult {
+func (as *WebAnalysisService) AnalyzeURLs(ctx context.Context, urls []string) []AuditResult {
 	results := make([]AuditResult, 0, len(urls))
 
 	for _, rawURL := range urls {
 		candidate := strings.TrimSpace(rawURL)
 
-		result := RecoverPanic(candidate, func() AuditResult {
+		result := RecoverPanic(ctx, candidate, func() AuditResult {
 			as.simulateRandomPanic()
 
 			if _, err := as.webURLValidator.Validate(candidate); err != nil {
@@ -41,11 +42,24 @@ func (as *WebAnalysisService) AnalyzeURLs(urls []string) []AuditResult {
 						URL:         candidate,
 						Status:      "ERROR",
 						ErrorReason: err.Error(),
+						RequestID:   GetAuditRunID(ctx),
 					},
 				}
 			}
 
-			resp, err := as.client.Get(candidate)
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, candidate, nil)
+			if err != nil {
+				return WebAuditResult{
+					BaseAuditResult: BaseAuditResult{
+						URL:         candidate,
+						Status:      "ERROR",
+						ErrorReason: err.Error(),
+						RequestID:   GetAuditRunID(ctx),
+					},
+				}
+			}
+
+			resp, err := as.client.Do(req)
 			if err != nil {
 				status := "UNREACHABLE"
 				errorMsg := err.Error()
@@ -59,6 +73,7 @@ func (as *WebAnalysisService) AnalyzeURLs(urls []string) []AuditResult {
 						URL:         candidate,
 						Status:      status,
 						ErrorReason: errorMsg,
+						RequestID:   GetAuditRunID(ctx),
 					},
 				}
 			}
@@ -67,8 +82,9 @@ func (as *WebAnalysisService) AnalyzeURLs(urls []string) []AuditResult {
 
 			return WebAuditResult{
 				BaseAuditResult: BaseAuditResult{
-					URL:    candidate,
-					Status: strconv.Itoa(resp.StatusCode),
+					URL:       candidate,
+					Status:    strconv.Itoa(resp.StatusCode),
+					RequestID: GetAuditRunID(ctx),
 				},
 				ContentLength: resp.ContentLength,
 				Server:        resp.Header.Get("Server"),

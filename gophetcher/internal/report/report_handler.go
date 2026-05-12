@@ -12,6 +12,7 @@ type ReportHandler interface {
 }
 
 type ReportRow struct {
+	ID       string `json:"id"`
 	Resource string `json:"resource"`
 	Status   string `json:"status"`
 	Size     string `json:"size"`
@@ -22,7 +23,7 @@ type TextReportHandler struct{}
 
 type JSONReportHandler struct{}
 
-const TableRowFormat = "%-24s %-10s %-10s %s\n"
+const TableRowFormat = "%-6s %-28s %-12s %-10s %s\n"
 
 var ReportHandlers = map[string]ReportHandler{
 	"text": TextReportHandler{},
@@ -44,12 +45,12 @@ func (rh TextReportHandler) Report(rows []ReportRow) {
 		return
 	}
 
-	fmt.Println(strings.Repeat("-", 72))
-	fmt.Printf(TableRowFormat, "RESOURCE", "STATUS", "SIZE", "INFO")
-	fmt.Println(strings.Repeat("-", 72))
+	fmt.Println(strings.Repeat("-", 80))
+	fmt.Printf(TableRowFormat, "ID", "RESOURCE", "STATUS", "SIZE", "INFO")
+	fmt.Println(strings.Repeat("-", 80))
 
 	for _, row := range rows {
-		fmt.Printf(TableRowFormat, row.Resource, row.Status, row.Size, row.Info)
+		fmt.Printf(TableRowFormat, row.ID, row.Resource, row.Status, row.Size, row.Info)
 	}
 }
 
