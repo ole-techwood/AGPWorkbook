@@ -1,0 +1,32 @@
+# WF Text Processor Configuration
+
+app_name = "wf-text-processor"
+version = "1.0.0"
+description = "A concurrent text file processor built with Go"
+
+[processing]
+default_workers = 4
+max_workers = 100
+buffer_size = 1000
+timeout = "30s"
+
+[file_filters]
+include_extensions = [".txt", ".text", ".log"]
+exclude_patterns = ["*.tmp", ".*", "*.backup"]
+max_file_size = "100MB"
+
+[output]
+format = "json"
+include_stats = true
+show_progress = true
+verbose = false
+
+[performance]
+enable_profiling = false
+memory_limit = "1GB"
+cpu_limit = "80%"
+
+[logging]
+level = "info"
+format = "structured"
+output = "stdout"
