@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	internal "github.com/DonAlexandro/go_advanced/internal"
+	"github.com/ole-techwood/AGPWorkbook/internal"
 	slogjson "github.com/veqryn/slog-json"
 )
 

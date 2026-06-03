@@ -1,0 +1,6 @@
+github.com/go-json-experiment/json v0.0.0-20250714165856-be8212f5270d h1:+d6m5Bjvv0/RJct1VcOw2P5bvBOGjENmxORJYnSYDow=
+github.com/go-json-experiment/json v0.0.0-20250714165856-be8212f5270d/go.mod h1:TiCD2a1pcmjd7YnhGH0f/zKNcCD06B029pHhzV23c2M=
+github.com/mdobak/go-xerrors v1.0.0 h1:p4wqdfRm2p5oxRpBbmb+f1wP6PZlMxPT8MLiwfub0Wk=
+github.com/mdobak/go-xerrors v1.0.0/go.mod h1:YHIv92A99IdVUcyfj9FEKAH3Jr4ejCj4YxqWfcLpjkk=
+github.com/veqryn/slog-json v0.5.0 h1:L/J6C73H8hXCnB3pbncTLXOlDKwOJlDTkPYzdIPJZWE=
+github.com/veqryn/slog-json v0.5.0/go.mod h1:WGXCZ5xyiDNcTUsRZDjl92iMC7ovLe0UreU1C1iMyMg=
