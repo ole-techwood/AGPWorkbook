@@ -7,11 +7,23 @@
       "skillPath": "skills/caveman/SKILL.md",
       "computedHash": "dfbf85749fd474feeb0bbe60c779795ecd5dbec0083299b56e68916bc3ddd8c9"
     },
+    "clean-code": {
+      "source": "grndlvl/software-patterns",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/clean-code/SKILL.md",
+      "computedHash": "44d3a6c87b8b96fbbd64af04ea560633154607da4236f79251862d2a11985c42"
+    },
     "find-skills": {
       "source": "vercel-labs/skills",
       "sourceType": "github",
       "skillPath": "skills/find-skills/SKILL.md",
       "computedHash": "9e1c8b3103f92fa8092568a44fe64858de7c5c9dc65ce4bea8f168080e889cfd"
+    },
+    "gof-patterns": {
+      "source": "grndlvl/software-patterns",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/gof-patterns/SKILL.md",
+      "computedHash": "7e0e5acaa95e31f55a197bd6dcff526c31e46ba3b3f2e29a5e967f37b70bf85a"
     },
     "golang-code-style": {
       "source": "samber/cc-skills-golang",

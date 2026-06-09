@@ -2,36 +2,45 @@ package main
 
 import (
 	"fmt"
-	"reflect"
+	"os"
+
+	"github.com/ole-techwood/AGPWorkbook/stargo/internal"
 )
 
-type Command interface {
-	Execute() error
-}
-
-type LoadCommand struct {
-	// Positional argument (the first word after the command name)
-	Name string `pos:"1" desc:"Name of the cargo"`
-
-	// Flag --weight (named argument)
-	Weight int `cli:"weight" desc:"Weight of the cargo in kg"`
-
-	// Flag --hazardous (if present - true, if not — false)
-	Hazardous bool `cli:"hazardous" desc:"Is the cargo dangerous?"`
-}
-
-func (c *LoadCommand) Execute() error {
-	fmt.Printf("🚀 Cargo successfully loaded: %s (Weight: %d, Hazardous: %t)\n", c.Name, c.Weight, c.Hazardous)
-
-	return nil
-}
-
 func main() {
-	// TODO: implement the main logic
-}
+	if len(os.Args) < 2 {
+		fmt.Printf("usage: go run cmd/main.go <%s> ...\n", internal.CommandsUsage())
+		os.Exit(1)
+	}
 
-func parseArgs(command reflect.Type, args []string) (Command, error) {
-	// TODO: implement argument parsing based on struct tags
+	commandName := os.Args[1]
+	args := os.Args[2:]
 
-	return nil, nil
+	commandType, ok := internal.GetCommandType(commandName)
+	if !ok {
+		fmt.Printf("unknown command: %s (supported: %s)\n", commandName, internal.CommandsUsage())
+		os.Exit(1)
+	}
+
+	if internal.ContainsHelpFlag(args) {
+		helpText, err := internal.BuildHelpCommand(commandName, commandType)
+		if err != nil {
+			fmt.Printf("failed to build help for %s command: %v\n", commandName, err)
+			os.Exit(1)
+		}
+
+		fmt.Print(helpText)
+		return
+	}
+
+	command, err := internal.ParseArgs(commandType, args)
+	if err != nil {
+		fmt.Printf("failed to parse %s command: %v\n", commandName, err)
+		os.Exit(1)
+	}
+
+	if err := command.Execute(); err != nil {
+		fmt.Printf("failed to execute %s command: %v\n", commandName, err)
+		os.Exit(1)
+	}
 }
