@@ -7,7 +7,10 @@ Follow the caveman communication skill exactly as defined in [SKILL.md](../../.a
 
 Before implementation, ALWAYS invoke [SKILL.md](../../.agents/skills/clean-code/SKILL.md). This is mandatory for every task.
 
-Before you start, detect ALL the relevant skills for the task exactly as defined in [SKILL.md](../../.agents/skills/golang-how-to/SKILL.md). Only use skills relevant to the task.
+Before you start, detect ALL the relevant skills for the task exactly as defined in:
+
+- Production engineering skills orchestrator: [SKILL.md](../../.agents/skills/using-agent-skills/SKILL.md). Only use skills relevant to the task.
+- Go specific skills orchestrator: [SKILL.md](../../.agents/skills/golang-how-to/SKILL.md). Only use skills relevant to the task.
 
 ## STRICT SCOPE CONSTRAINT
 

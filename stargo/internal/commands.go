@@ -2,8 +2,10 @@ package internal
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -49,8 +51,35 @@ type CancelCommand struct {
 }
 
 func (c *LoadCommand) Execute() error {
-	fmt.Printf("🚀 Cargo successfully loaded: %s (Weight: %d, Hazardous: %t)\n", c.Name, c.Weight, c.Hazardous)
+	existing, err := LoadCargoList(cargoFilePath)
+	if err != nil {
+		return fmt.Errorf("load: read cargo state: %w", err)
+	}
 
+	totalWeight := c.Weight
+	for _, item := range existing {
+		totalWeight += item.Weight
+	}
+
+	if totalWeight > weightLimit {
+		return fmt.Errorf("load: total weight would be %d kg, exceeds %d kg limit", totalWeight, weightLimit)
+	}
+
+	newCargo := Cargo{
+		ID:          strconv.Itoa(len(existing)),
+		LoadCommand: *c,
+	}
+	existing = append(existing, newCargo)
+
+	if err := os.MkdirAll(cargoDataDir, 0o755); err != nil {
+		return fmt.Errorf("load: create data dir: %w", err)
+	}
+
+	if err := SaveCargoList(cargoFilePath, existing); err != nil {
+		return fmt.Errorf("load: save cargo state: %w", err)
+	}
+
+	fmt.Printf("Cargo loaded: %s (ID: %s, total weight: %d kg)\n", c.Name, newCargo.ID, totalWeight)
 	return nil
 }
 
