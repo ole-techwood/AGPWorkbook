@@ -83,14 +83,19 @@ func encodeStructValue(v reflect.Value) (string, error) {
 
 	var b strings.Builder
 	b.WriteByte('{')
+	written := 0
 
-	for i, f := range fields {
+	for _, f := range fields {
 		encoded, err := encodeJSONValue(f.value)
 		if err != nil {
 			return "", fmt.Errorf("field %s: %w", f.name, err)
 		}
 
-		if i > 0 {
+		if encoded == "" {
+			continue
+		}
+
+		if written > 0 {
 			b.WriteString(", ")
 		}
 
@@ -98,6 +103,7 @@ func encodeStructValue(v reflect.Value) (string, error) {
 		b.WriteString(f.name)
 		b.WriteString(`": `)
 		b.WriteString(encoded)
+		written++
 	}
 
 	b.WriteByte('}')
@@ -107,6 +113,7 @@ func encodeStructValue(v reflect.Value) (string, error) {
 func encodeArrayValue(v reflect.Value) (string, error) {
 	var b strings.Builder
 	b.WriteByte('[')
+	written := 0
 
 	for i := range v.Len() {
 		encoded, err := encodeJSONValue(v.Index(i))
@@ -114,10 +121,15 @@ func encodeArrayValue(v reflect.Value) (string, error) {
 			return "", fmt.Errorf("index %d: %w", i, err)
 		}
 
-		if i > 0 {
+		if encoded == "" {
+			continue
+		}
+
+		if written > 0 {
 			b.WriteString(", ")
 		}
 		b.WriteString(encoded)
+		written++
 	}
 
 	b.WriteByte(']')
@@ -140,7 +152,7 @@ func encodeFieldValue(v reflect.Value) (string, error) {
 	case reflect.Float32, reflect.Float64:
 		return strconv.FormatFloat(v.Float(), 'f', -1, 64), nil
 	default:
-		return "", fmt.Errorf("unsupported type %s", v.Kind())
+		return "", nil
 	}
 }
 
@@ -275,7 +287,7 @@ func setFieldValue(field reflect.Value, kind reflect.Kind, raw any) error {
 		field.SetFloat(f)
 
 	default:
-		return fmt.Errorf("unsupported type %s", kind)
+		return nil
 	}
 
 	return nil

@@ -39,6 +39,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	container := internal.NewContainer()
+	container.Register(internal.NewLogger())
+
+	if err := container.Inject(command); err != nil {
+		fmt.Printf("failed to inject dependencies for %s command: %v\n", commandName, err)
+		os.Exit(1)
+	}
+
 	if err := command.Execute(); err != nil {
 		fmt.Printf("failed to execute %s command: %v\n", commandName, err)
 		os.Exit(1)

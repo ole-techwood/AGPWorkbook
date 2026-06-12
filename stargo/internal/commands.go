@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"reflect"
@@ -43,6 +44,9 @@ type LoadCommand struct {
 
 	// Flag --hazardous (if present - true, if not — false)
 	Hazardous bool `cli:"hazardous" desc:"Is the cargo dangerous?"`
+
+	// Injected Infrastructure Service
+	Logger *Logger `di:"inject"`
 }
 
 type CancelCommand struct {
@@ -51,6 +55,10 @@ type CancelCommand struct {
 }
 
 func (c *LoadCommand) Execute() error {
+	if c.Logger == nil {
+		return errors.New("load: logger dependency not injected")
+	}
+
 	existing, err := LoadCargoList(cargoFilePath)
 	if err != nil {
 		return fmt.Errorf("load: read cargo state: %w", err)
@@ -79,7 +87,7 @@ func (c *LoadCommand) Execute() error {
 		return fmt.Errorf("load: save cargo state: %w", err)
 	}
 
-	fmt.Printf("Cargo loaded: %s (ID: %s, total weight: %d kg)\n", c.Name, newCargo.ID, totalWeight)
+	c.Logger.Info("✅ Cargo loaded: %s (ID: %s, total weight: %d kg)\n", c.Name, newCargo.ID, totalWeight)
 	return nil
 }
 
