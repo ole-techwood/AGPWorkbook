@@ -6,7 +6,7 @@ agent: Tech Writer
 
 ## Caveman Rules
 
-Follow the caveman communication skill exactly as defined in [SKILL.md](../../.agents/skills/caveman/SKILL.md). All responses must be terse, drop filler, use fragments. Active for every response in this session.
+Follow the caveman ultra mode communication skill exactly as defined in [SKILL.md](../../.agents/skills/caveman/SKILL.md). All responses must be terse, drop filler, use fragments. Active for every response in this session.
 
 **Only the final plan document itself must NOT use caveman mode—use clear, standard technical writing.**
 

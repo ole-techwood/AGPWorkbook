@@ -14,11 +14,6 @@ type Command interface {
 	Execute() error
 }
 
-var commandRegistry = map[string]reflect.Type{
-	"load":   reflect.TypeFor[*LoadCommand](),
-	"cancel": reflect.TypeFor[*CancelCommand](),
-}
-
 func GetCommandType(name string) (reflect.Type, bool) {
 	commandType, ok := commandRegistry[name]
 	return commandType, ok
@@ -33,25 +28,6 @@ func CommandsUsage() string {
 	sort.Strings(commandNames)
 
 	return strings.Join(commandNames, "|")
-}
-
-type LoadCommand struct {
-	// Positional argument (the first word after the command name)
-	Name string `pos:"1" desc:"Name of the cargo"`
-
-	// Flag --weight (named argument)
-	Weight int `cli:"weight" desc:"Weight of the cargo in kg"`
-
-	// Flag --hazardous (if present - true, if not — false)
-	Hazardous bool `cli:"hazardous" desc:"Is the cargo dangerous?"`
-
-	// Injected Infrastructure Service
-	Logger *Logger `di:"inject"`
-}
-
-type CancelCommand struct {
-	// Positional argument (the first word after the command name)
-	ID string `pos:"1" desc:"ID of the order to cancel"`
 }
 
 func (c *LoadCommand) Execute() error {
@@ -92,6 +68,10 @@ func (c *LoadCommand) Execute() error {
 }
 
 func (c *CancelCommand) Execute() error {
-	fmt.Printf("❌ Order successfully canceled: %s\n", c.ID)
+	if c.Logger == nil {
+		return errors.New("cancel: logger dependency not injected")
+	}
+
+	c.Logger.Info("❌ Order successfully canceled: %s\n", c.ID)
 	return nil
 }

@@ -1,0 +1,42 @@
+[
+  {
+    "CommandName": "Cancel",
+    "Fields": [
+      {
+        "Name": "ID",
+        "Type": "string",
+        "TagKey": "pos",
+        "TagVal": "1",
+        "Desc": "ID of the order to cancel"
+      }
+    ],
+    "InjectLogger": true
+  },
+  {
+    "CommandName": "Load",
+    "Fields": [
+      {
+        "Name": "Name",
+        "Type": "string",
+        "TagKey": "pos",
+        "TagVal": "1",
+        "Desc": "Name of the cargo"
+      },
+      {
+        "Name": "Weight",
+        "Type": "int",
+        "TagKey": "cli",
+        "TagVal": "weight",
+        "Desc": "Weight of the cargo in kg"
+      },
+      {
+        "Name": "Hazardous",
+        "Type": "bool",
+        "TagKey": "cli",
+        "TagVal": "hazardous",
+        "Desc": "Is the cargo dangerous?"
+      }
+    ],
+    "InjectLogger": true
+  }
+]
