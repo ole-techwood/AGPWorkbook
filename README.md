@@ -9,6 +9,7 @@ Each folder in this repo contains a set of requirements for small CLI utils. By 
 - **WordCounter** – concurrency
 - **PizzaCLI** – efficient memory usage
 - **Gophetcher** - error handling, OOP, code quality
+- **Stargo** - reflection and metaprogramming
 
 Each folder contains my version of the implementation. You can use it as a reference if you want
 
