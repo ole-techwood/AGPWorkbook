@@ -1,3 +1,3 @@
-specs/
-plans/
+docs/**/*
 stargo/data/
+bin/

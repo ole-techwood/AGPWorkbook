@@ -1,57 +1,76 @@
 ---
 name: "plan"
-description: "Plan creation from an attached spec using structured task breakdown and review checkpoints."
-argument-hint: "Attach spec and describe planning scope"
-agent: Tech Writer
+description: "Break a spec file into small, atomic, vertically-sliced tasks for iterative development. Reads a spec from context, builds a dependency graph, writes tasks with acceptance criteria and verification steps, adds phase checkpoints, and saves the plan to docs/plans/."
+argument-hint: "Attach or describe the spec file to plan"
+agent: "Tech Writer"
 ---
 
-## Caveman Rules
+Follow the caveman communication skill in exactly as defined in [SKILL.md](../../.agents/skills/caveman-ultra/SKILL.md). All responses must be terse, drop all filler, use fragments. This mode is active for **every response in this session**. The final plan document itself must NOT use caveman mode — use clear, standard technical writing for the document only.
 
-Follow the caveman communication skill exactly as defined in [SKILL.md](../../.agents/skills/caveman/SKILL.md). All responses must be terse, drop filler, use fragments. Active for every response in this session.
+## Planning Process
 
-**Only the final plan document itself must NOT use caveman mode—use clear, standard technical writing.**
+Execute [SKILL.md](../../.agents/skills/planning-and-task-breakdown/SKILL.md) in full. Follow each step below in order.
+
+### Step 1 — Read
+
+- Read the spec file provided in context
+- Read relevant codebase sections referenced by the spec
+- Note risks, unknowns, and hard constraints
+
+**Do NOT write any code. Output is a plan document only.**
+
+### Step 2 — Slice vertically
+
+One complete feature path per task. Never horizontal layers (no "build all hooks, then all components").
+
+Each task must deliver working, testable functionality end-to-end.
+
+### Step 3 — Write tasks
+
+Each task uses this structure:
+
+```markdown
+## Task [N]: [Short descriptive title]
+
+**Description:** What this task accomplishes.
+
+**Acceptance criteria:**
+
+- [ ] [Specific, testable condition]
+- [ ] [Specific, testable condition]
+
+**Verification:**
+
+- [ ] Tests pass: `pnpm run test`
+- [ ] Build succeeds: `pnpm run build`
+- [ ] Manual check: [what to verify]
+
+**Dependencies:** [Task numbers, or "None"]
+
+**Files likely touched:**
+
+- `apps/decs-ui/src/...`
+
+**Estimated scope:** [Small: 1-2 files | Medium: 3-5 files | Large: 5+ files]
+```
+
+### Step 4 — Add checkpoints between phases
+
+After every 2–3 tasks, insert a checkpoint:
+
+```markdown
+## Checkpoint: After Tasks [N]–[M]
+
+- [ ] All tests pass
+- [ ] Application builds without errors
+- [ ] [Feature-specific manual verification]
+```
+
+### Step 5 — Save
+
+Save the plan to `docs/plans/<spec-name>-plan.md`. Drop `spec` suffix for the plan filename.
 
 ---
-
-Before planning, ALWAYS invoke [SKILL.md](../../.agents/skills/planning-and-task-breakdown/SKILL.md).
-
-## CRITICAL INPUT GATE
-
-Copilot must create the plan by transforming the user-provided spec attached in chat context.
-
-If no spec is attached:
-
-- Abort plan creation immediately.
-- Ask user to attach the spec Copilot must use.
-- Do not draft a partial plan.
-
-## Planning Method
-
-Use this workflow to build a high-quality plan:
-
-1. Identify dependency graph between components.
-2. Slice work vertically (one complete path per task, not horizontal layers).
-3. Write each task with acceptance criteria and verification steps.
-4. Add checkpoints between phases.
-5. Present plan for human review.
-
-## Output Requirements
-
-- Produce planning output only.
-- Do not write implementation code.
-- Keep task sequence executable and reviewable.
-
-## Plan Structure
-
-1. **Context Summary** — brief recap of spec objective and constraints
-2. **Dependency Graph** — ordered dependencies and blockers
-3. **Phased Vertical Tasks** — each task includes acceptance criteria and verification
-4. **Checkpoints** — explicit human review gates between phases
-5. **Risks & Open Questions** — unresolved items requiring decisions
-
-## Plan Delivery
-
-Save every finalized plan in the `plans/` folder using a descriptive filename derived from the spec or feature name.
 
 ## TASK
 

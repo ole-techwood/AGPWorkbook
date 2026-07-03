@@ -14,7 +14,6 @@ metadata:
       bins:
         - go
     install: []
-allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(golangci-lint:*) Bash(git:*) Agent AskUserQuestion
 ---
 
 **Persona:** You are a Go project architect. You right-size structure to the problem — a script stays flat, a service gets layers only when justified by actual complexity.
@@ -37,13 +36,13 @@ For applications (services, APIs, workers), follow [12-Factor App](https://12fac
 
 ## Quick Start: Choose Your Project Type
 
-| Project Type | Use When | Key Directories |
-| --- | --- | --- |
-| **CLI Tool** | Building a command-line application | `cmd/{name}/`, `internal/`, optional `pkg/` |
-| **Library** | Creating reusable code for others | `pkg/{name}/`, `internal/` for private code |
-| **Service** | HTTP API, microservice, or web app | `cmd/{service}/`, `internal/`, `api/`, `web/` |
-| **Monorepo** | Multiple related packages/modules | `go.work`, separate modules per package |
-| **Workspace** | Developing multiple local modules | `go.work`, replace directives |
+| Project Type  | Use When                            | Key Directories                               |
+| ------------- | ----------------------------------- | --------------------------------------------- |
+| **CLI Tool**  | Building a command-line application | `cmd/{name}/`, `internal/`, optional `pkg/`   |
+| **Library**   | Creating reusable code for others   | `pkg/{name}/`, `internal/` for private code   |
+| **Service**   | HTTP API, microservice, or web app  | `cmd/{service}/`, `internal/`, `api/`, `web/` |
+| **Monorepo**  | Multiple related packages/modules   | `go.work`, separate modules per package       |
+| **Workspace** | Developing multiple local modules   | `go.work`, replace directives                 |
 
 ## Module Naming Conventions
 

@@ -1,20 +1,31 @@
 ---
 name: "spec"
-description: "Spec-driven development. Create detailed specifications before coding using structured requirements gathering."
-agent: Tech Writer
+description: "Create a technical specification from a feature idea or requirement. Always applies project React rules first, interviews the user if vague, refines if partial, then produces a structured spec via spec-driven-development. Saves output to docs/specs/."
+argument-hint: "Describe the feature or requirement to spec out"
+agent: "Tech Writer"
 ---
 
-## Caveman Rules
+Follow the caveman communication skill exactly as defined in [SKILL.md](../../.agents/skills/caveman-ultra/). All responses must be terse, drop all filler, use fragments. This mode is active for **every response in this session**. The final spec document itself must NOT use caveman mode — use clear, standard technical writing for the document only.
 
-Follow the caveman ultra mode communication skill exactly as defined in [SKILL.md](../../.agents/skills/caveman/SKILL.md). All responses must be terse, drop filler, use fragments. Active for every response in this session.
+## Skill Selection Logic
 
-**Only the final plan document itself must NOT use caveman mode—use clear, standard technical writing.**
+Assess the input before doing anything else.
+
+**VAGUE** — input is a single sentence, buzzword soup, or lacks measurable outcomes (e.g., "The UI shall load and display the current active configuration"):
+→ Execute [interview-me SKILL.md](../../.agents/skills/interview-me/SKILL.md) first — one question at a time until ~95% confidence.
+→ Then execute [idea-refine SKILL.md](../../.agents/skills/idea-refine/SKILL.md) if gaps remain.
+→ Then execute [spec-driven-development SKILL.md](../../.agents/skills/spec-driven-development/SKILL.md).
+
+**PARTIAL** — input has some detail but ambiguous acceptance criteria, missing edge cases, or unclear scope:
+→ Execute [idea-refine SKILL.md](../../.agents/skills/idea-refine/SKILL.md) first.
+→ Then execute [spec-driven-development SKILL.md](../../.agents/skills/spec-driven-development/SKILL.md).
+
+**DETAILED** — input has clear objective, measurable criteria, constraints, and scope:
+→ Execute [spec-driven-development SKILL.md](../../.agents/skills/spec-driven-development/SKILL.md) immediately.
+
+**Never skip [spec-driven-development SKILL.md](../../.agents/skills/spec-driven-development/SKILL.md). It is always the final step.**
 
 ---
-
-Before starting, ALWAYS invoke [SKILL.md](../../.agents/skills/spec-driven-development/SKILL.md) to create a comprehensive specification.
-
-Only if Copilot believes the task is vague or ambiguous, interview the user using [SKILL.md](../../.agents/skills/idea-refine/SKILL.md) to sharpen the concept first.
 
 ## Clarifying Questions
 
@@ -42,7 +53,7 @@ Surface assumptions immediately before writing spec content. List them clearly f
 
 ## Spec Delivery
 
-Once reviewed and approved by the user, save the final specification to the `specs/` folder with a descriptive filename matching the project or feature name.
+Once reviewed and approved by the user, save the final specification to the `docs/specs/` folder with a descriptive filename matching the project or feature name.
 
 ## TASK
 

@@ -18,7 +18,6 @@ metadata:
       - kind: go
         package: github.com/cweill/gotests/gotests@latest
         bins: [gotests]
-allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(golangci-lint:*) Bash(git:*) Agent Bash(gotests:*) AskUserQuestion
 ---
 
 **Persona:** You are a Go engineer who treats tests as executable specifications. You write tests to constrain behavior, not to hit coverage targets.
