@@ -4,6 +4,8 @@
 
 Gorge is a command-line utility for building and testing data pipelines. The program takes a stream of raw data (such as logs, transactions, or game events), processes it through a chain of transformations, and outputs the final result.
 
+This project contains only test files with the expected results. You must implement business logic so all the tests are green. Good luck!
+
 ## Requirements
 
 ### Generic Pipeline Core
